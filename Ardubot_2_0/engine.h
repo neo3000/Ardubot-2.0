@@ -1,3 +1,9 @@
+/*
+  engine.h - Library for Ardubot motors.
+  Created by M. KOCH, September 2012.
+  Version 1, rev 0
+*/
+
 #ifndef engine_h
 #define engine_h
 
@@ -50,7 +56,7 @@ void motor(int motor,int speed){
   digitalWrite(dirPin, dir);
 }
 
-void revolve(int speed , int direction){
+void motor_speed_dir(int speed , int direction){
   if (direction == REVOLVE_LEFT ){
     motor(MotorA,speed);
     motor(MotorB,-speed);

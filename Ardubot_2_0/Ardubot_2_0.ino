@@ -1,35 +1,35 @@
-#include <QTRSensors.h>
-#include <AFMotor.h>
+/*
+  Ardubot_2_0.ino - Mainframe Firmware for Ardubot-2.0
+  Created by M. KOCH, September 2012.
+  Version 2.0, rev 0
+*/
 
-AF_DCMotor motor1(1, MOTOR12_8KHZ ); // PIN 11 - create motor #1 pwm
-AF_DCMotor motor2(2, MOTOR12_8KHZ ); // PIN 3 - create motor #2 pwm
+#include "QTRSensors.h"
+#include "engine.h"
+#include "config.h"
 
-// Change the values below to suit your robot's motors, weight, wheel type, etc.
-#define KP .2
-#define KD 5
-#define M1_DEFAULT_SPEED 50
-#define M2_DEFAULT_SPEED 50
-#define M1_MAX_SPEED 70
-#define M2_MAX_SPEED 70
-#define MIDDLE_SENSOR 3
-#define NUM_SENSORS  5      // number of sensors used
-#define TIMEOUT       2500  // waits for 2500 us for sensor outputs to go low
-#define EMITTER_PIN   2     // emitter is controlled by digital pin 2
-#define DEBUG 0 // set to 1 if serial debug output needed
+QTRSensorsRC qtrrc((unsigned char[]) {5, 6, 7, 8, 9, 10}, NUM_OF_SENSORS, TIMEOUT, EMITTER_PIN);
 
-QTRSensorsRC qtrrc((unsigned char[]) {  18,17,16,15,14} ,NUM_SENSORS, TIMEOUT, EMITTER_PIN);
-
-unsigned int sensorValues[NUM_SENSORS];
+unsigned int sensorValues[NUM_OF_SENSORS];
 
 void setup()
 {
+  pinMode(STATE_LED, OUTPUT);
+  engineSetup();
+  
+  for (int i = 0; i < CALIBRATION_SPEED; i++)  // the calibration will take a few seconds
+  {
+    qtrrc.calibrate(QTR_EMITTERS_ON);
+    delay(20);
+  }
+  
   delay(1000);
-  manual_calibration(); 
+
   set_motors(0,0);
 }
 
 int lastError = 0;
-int  last_proportional = 0;
+int last_proportional = 0;
 int integral = 0;
 
 
@@ -55,37 +55,18 @@ void set_motors(int motor1speed, int motor2speed)
   if (motor2speed > M2_MAX_SPEED ) motor2speed = M2_MAX_SPEED; // limit top speed
   if (motor1speed < 0) motor1speed = 0; // keep motor above 0
   if (motor2speed < 0) motor2speed = 0; // keep motor speed above 0
-  motor1.setSpeed(motor1speed);     // set motor speed
-  motor2.setSpeed(motor2speed);     // set motor speed
-  motor1.run(FORWARD);  
-  motor2.run(FORWARD);
+  motor_speed_dir(motor1speed, FORWARD);     // set motor speed
+  motor_speed_dir(motor2speed, FORWARD);     // set motor speed
 }
 
-
-void manual_calibration() {
-
-  int i;
-  for (i = 0; i < 250; i++)  // the calibration will take a few seconds
-  {
-    qtrrc.calibrate(QTR_EMITTERS_ON);
-    delay(20);
-  }
-
-  if (DEBUG) { // if true, generate sensor dats via serial output
-    Serial.begin(9600);
-    for (int i = 0; i < NUM_SENSORS; i++)
-    {
-      Serial.print(qtrrc.calibratedMinimumOn[i]);
-      Serial.print(' ');
+void led_blink(int Led, int Time, int Numbers){
+    digitalWrite(Led, HIGH);
+    for(int i = 0; i < Numbers; i++){
+      if (digitalRead(Led) == LOW){
+        digitalWrite(Led, HIGH);
+        }else{
+        digitalWrite(Led, LOW);}
+      delay(Time);
     }
-    Serial.println();
-
-    for (int i = 0; i < NUM_SENSORS; i++)
-    {
-      Serial.print(qtrrc.calibratedMaximumOn[i]);
-      Serial.print(' ');
-    }
-    Serial.println();
-    Serial.println();
+    digitalWrite(Led, LOW);
   }
-}
