@@ -21,9 +21,6 @@
 #define FORWARD 0
 #define REVERSE 1
 
-#define REVOLVE_LEFT 0
-#define REVOLVE_RIGHT 1
-
 void engineSetup(){
   // motor pins must be outputs
   pinMode(PwmPinMotorA, OUTPUT);
@@ -37,7 +34,7 @@ void motor(int motor,int speed){
   int pwmPin;
   int dirPin;
   
-  if(motor == MotorB){
+  if(motor == MotorA){
     pwmPin = 3;
     dirPin = 12;
   }
@@ -57,7 +54,7 @@ void motor(int motor,int speed){
 }
 
 void motor_speed_dir(int speed , int direction){
-  if (direction == REVOLVE_LEFT ){
+  if (direction == REVERSE ){
     motor(MotorA,speed);
     motor(MotorB,-speed);
   }else{
