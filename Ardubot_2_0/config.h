@@ -1,34 +1,40 @@
 /*
   config.h - Library for configure the Ardubot.
   Created by M. KOCH, September 2012.
-  Version 1, rev 0
+  Version 2, rev 1
+  OPEN SOURCE
 */
 
 #ifndef config_h
 #define config_h
 
-//QTR Sensors
-#define NUM_OF_SENSORS 6
-#define MIDDLE_POS (((NUM_OF_SENSORS*1000) - 1000) / 2)
-#define MIDDLE_SENSOR 3
-#define EMITTER_PIN 1
-#define TIMEOUT 2500
-#define CALIBRATION_SPEED 250
-
 //PID Control
 #define KP 0.2
 #define KD 5
 
-//LEDs
-#define STATE_LED 2
+//Engine System
+#define MOTOR1_NORMAL_SPEED 50
+#define MOTOR2_NORMAL_SPEED 50
+#define MOTOR1_MAXIMAL_SPEED 70
+#define MOTOR2_MAXIMAL_SPEED 70
 
-//Engine
-#define FORWARD_MAX 70
-#define REVERSE_MAX 20
-#define M1_MAX_SPEED 70
-#define M2_MAX_SPEED 70
-#define M1_DEFAULT_SPEED 40
-#define M2_DEFAULT_SPEED 40
+//Engine Navigation
+#define FWD 0
+#define REV 1
 
+//Engine Connection and PWM
+#define PwmPinMotorA 3
+#define PwmPinMotorB 11
+#define DirectionPinMotorA 12
+#define DirectionPinMotorB 13
+
+//IR Sensor
+#define NUM_SENSORS 5
+#define TIMEOUT 1000
+#define EMITTER_PIN 2
+
+//Debug Mode
+#define DEBUG 1
+#define DEBUG_OUPUT_SPEED 500
 #endif
 

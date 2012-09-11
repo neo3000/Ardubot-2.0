@@ -1,72 +1,92 @@
 /*
-  Ardubot_2_0.ino - Mainframe Firmware for Ardubot-2.0
+  config.h - Library for configure the Ardubot.
   Created by M. KOCH, September 2012.
-  Version 2.0, rev 0
+  Version 2, rev 1
+  OPEN SOURCE
 */
 
 #include "QTRSensors.h"
-#include "engine.h"
 #include "config.h"
 
-QTRSensorsRC qtrrc((unsigned char[]) {5, 6, 7, 8, 9, 10}, NUM_OF_SENSORS, TIMEOUT, EMITTER_PIN);
+int Error = 0;
+int LastError = 0;
+int MotorSpeed = 0;
+int Output = 0;
 
-unsigned int sensorValues[NUM_OF_SENSORS];
+//--------------------------------------------------------------------------------------------
+QTRSensorsRC qtrrc((unsigned char[]) {5,6,7,8,9,10} ,NUM_SENSORS, TIMEOUT, EMITTER_PIN);
+unsigned int sensorValues[NUM_SENSORS];
 
 void setup()
 {
-  pinMode(STATE_LED, OUTPUT);
-  engineSetup();
-  
-  for (int i = 0; i < CALIBRATION_SPEED; i++)  // the calibration will take a few seconds
-  {
-    qtrrc.calibrate(QTR_EMITTERS_ON);
-    delay(20);
-  }
-  
+  Serial.begin(9600);
   delay(1000);
-
-  set_motors(0,0);
+  manual_calibration(); 
+  set_motors(0,0, FWD);
 }
-
-int lastError = 0;
-int last_proportional = 0;
-int integral = 0;
-
 
 void loop()
 {
-  unsigned int sensors[5];
-  int position = qtrrc.readLine(sensors);
-  int error = position - 2000;
+  unsigned int Sensors[5];
+  int position = qtrrc.readLine(Sensors);
+  Error = position - 2000;
 
-  int motorSpeed = KP * error + KD * (error - lastError);
-  lastError = error;
-
-  int leftMotorSpeed = M1_DEFAULT_SPEED + motorSpeed;
-  int rightMotorSpeed = M2_DEFAULT_SPEED - motorSpeed;
-
-  // set motor speeds using the two motor speed variables above
-  set_motors(leftMotorSpeed, rightMotorSpeed);
-}
-
-void set_motors(int motor1speed, int motor2speed)
-{
-  if (motor1speed > M1_MAX_SPEED ) motor1speed = M1_MAX_SPEED; // limit top speed
-  if (motor2speed > M2_MAX_SPEED ) motor2speed = M2_MAX_SPEED; // limit top speed
-  if (motor1speed < 0) motor1speed = 0; // keep motor above 0
-  if (motor2speed < 0) motor2speed = 0; // keep motor speed above 0
-  motor_speed_dir(motor1speed, FORWARD);     // set motor speed
-  motor_speed_dir(motor2speed, FORWARD);     // set motor speed
-}
-
-void led_blink(int Led, int Time, int Numbers){
-    digitalWrite(Led, HIGH);
-    for(int i = 0; i < Numbers; i++){
-      if (digitalRead(Led) == LOW){
-        digitalWrite(Led, HIGH);
-        }else{
-        digitalWrite(Led, LOW);}
-      delay(Time);
-    }
-    digitalWrite(Led, LOW);
+  Output = KP * Error + KD * (Error - LastError);
+  LastError = Error;
+  
+  if(DEBUG == 1){
+    debug_mode();
+    Serial.println('\n');
+    Serial.print(qtrrc.readLine(Sensors));
+    Serial.println('\n');
+  }else{
+    int Motor1NewSpeed = MOTOR1_NORMAL_SPEED + Output;
+    int Motor2NewSpeed = MOTOR2_NORMAL_SPEED - Output;
+    set_motors(Motor1NewSpeed, Motor2NewSpeed, FWD);
   }
+}
+
+void set_motors(int Motor1Speed, int Motor2Speed, int MotorDirection)
+{
+  if (Motor1Speed > MOTOR1_MAXIMAL_SPEED ){Motor1Speed = MOTOR1_MAXIMAL_SPEED;}
+  if (Motor2Speed > MOTOR2_MAXIMAL_SPEED ){Motor2Speed = MOTOR2_MAXIMAL_SPEED;}
+  if (Motor1Speed < 0){Motor1Speed = 0;}
+  if (Motor2Speed < 0){Motor2Speed = 0;}
+  analogWrite(PwmPinMotorA, Motor1Speed);
+  analogWrite(PwmPinMotorB, Motor2Speed);
+  
+  if(MotorDirection == FWD){
+  digitalWrite(DirectionPinMotorA, HIGH);
+  digitalWrite(DirectionPinMotorB, HIGH);
+  }
+  if(MotorDirection == REV){
+  digitalWrite(DirectionPinMotorA, LOW);
+  digitalWrite(DirectionPinMotorB, LOW);
+  }  
+}
+
+void manual_calibration() {
+  for (int i = 0; i < 250; i++)
+  {
+    qtrrc.calibrate(QTR_EMITTERS_ON);
+    delay(5);
+  }
+}
+
+void debug_mode(){
+    for (int i = 0; i < NUM_SENSORS; i++)
+    {
+      Serial.print(qtrrc.calibratedMinimumOn[i]);
+      Serial.print(' ');
+    }
+    Serial.println();
+
+    for (int i = 0; i < NUM_SENSORS; i++)
+    {
+      Serial.print(qtrrc.calibratedMaximumOn[i]);
+      Serial.print(' ');
+    }
+    Serial.println();
+    Serial.println();
+    delay(DEBUG_OUPUT_SPEED);
+}
