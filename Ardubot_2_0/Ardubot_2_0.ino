@@ -1,7 +1,8 @@
 /*
-  config.h - Library for configure the Ardubot.
+  Ardubot_2_0.ino - Mainframe Firmware for Ardubot.
   Created by M. KOCH, September 2012.
   Version 2, rev 1
+  Arduino rev3, IDE 1.0.1
   OPEN SOURCE
 */
 
