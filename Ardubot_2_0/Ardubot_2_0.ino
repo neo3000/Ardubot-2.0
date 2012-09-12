@@ -12,38 +12,72 @@
 int Error = 0;
 int LastError = 0;
 int MotorSpeed = 0;
-int Output = 0;
+int Output;
+int Position;
 
 //--------------------------------------------------------------------------------------------
-QTRSensorsRC qtrrc((unsigned char[]) {5,6,7,8,9,10} ,NUM_SENSORS, TIMEOUT, EMITTER_PIN);
-unsigned int sensorValues[NUM_SENSORS];
+//  Sensors   |  0  |  1  |  2  |  3  |  4  | 5  |
+//  Pins      |  5  |  6  |  7  |  8  |  9  | 10 |
+//--------------------------------------------------------------------------------------------
+QTRSensorsRC qtrrc((unsigned char[]) {6,7,8,9} ,NUM_SENSORS, TIMEOUT, EMITTER_PIN);
 
+//Initiation
 void setup()
 {
-  Serial.begin(9600);
-  delay(1000);
-  manual_calibration(); 
+  Serial.begin(9600); // Serial init
+  
+  pinMode(PROGRAMCABLE, INPUT);  //Programmer Cable Pin
+  
+  pinMode(PwmPinMotorA, OUTPUT);
+  pinMode(PwmPinMotorB, OUTPUT);
+  pinMode(DirectionPinMotorA, OUTPUT);
+  pinMode(DirectionPinMotorB, OUTPUT);
+  
+  pinMode(EMITTER_PIN, OUTPUT);
+  pinMode(STATUS_LED, OUTPUT);
+  pinMode(1, OUTPUT);
+  pinMode(5, INPUT);
+  pinMode(6, INPUT);
+  pinMode(7, INPUT);
+  pinMode(8, INPUT);
+  pinMode(9, INPUT);
+  pinMode(10, INPUT);
+  
+  delay(500);
+  manual_calibration(); //Sensor calibration
+  
   set_motors(0,0, FWD);
 }
 
+
+//Mainframe
 void loop()
 {
-  unsigned int Sensors[5];
-  int position = qtrrc.readLine(Sensors);
-  Error = position - 2000;
+  unsigned int Sensors[NUM_SENSORS];
+  Position = qtrrc.readLine(Sensors);
+  Error = Position - SETPOINT;
 
   Output = KP * Error + KD * (Error - LastError);
   LastError = Error;
   
+  if(digitalRead(PROGRAMCABLE) == HIGH){
+    int value = HIGH;
+    delay(200);
+    digitalWrite(STATUS_LED, value);
+    delay(200);
+    value = LOW;
+  } 
+  
   if(DEBUG == 1){
     debug_mode();
-    Serial.println('\n');
-    Serial.print(qtrrc.readLine(Sensors));
-    Serial.println('\n');
   }else{
+    if(Position == MINIMUM_POINT || Position == MAXIMUM_POINT){
+    set_motors(0, 0, FWD);
+    }else{
     int Motor1NewSpeed = MOTOR1_NORMAL_SPEED + Output;
     int Motor2NewSpeed = MOTOR2_NORMAL_SPEED - Output;
     set_motors(Motor1NewSpeed, Motor2NewSpeed, FWD);
+    }
   }
 }
 
@@ -70,24 +104,34 @@ void manual_calibration() {
   for (int i = 0; i < 250; i++)
   {
     qtrrc.calibrate(QTR_EMITTERS_ON);
-    delay(5);
+    delay(10);
   }
 }
 
 void debug_mode(){
+    Serial.print("Min: ");
     for (int i = 0; i < NUM_SENSORS; i++)
     {
       Serial.print(qtrrc.calibratedMinimumOn[i]);
       Serial.print(' ');
     }
     Serial.println();
-
+    
+    Serial.print("Max: ");
     for (int i = 0; i < NUM_SENSORS; i++)
     {
       Serial.print(qtrrc.calibratedMaximumOn[i]);
       Serial.print(' ');
     }
-    Serial.println();
-    Serial.println();
+    Serial.print('\n');    
+    
+    Serial.print("Output: ");
+    Serial.print(Output);
+    Serial.print('\n');    
+    Serial.print("Position: ");
+   Serial.print(Position);
+    Serial.print('\n');
+    Serial.print("----------------------------------");
+    Serial.print('\n');
     delay(DEBUG_OUPUT_SPEED);
 }

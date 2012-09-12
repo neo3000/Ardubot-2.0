@@ -9,7 +9,7 @@
 #define config_h
 
 //PID Control
-#define KP 0.2
+#define KP .18
 #define KD 5
 
 //Engine System
@@ -19,8 +19,8 @@
 #define MOTOR2_MAXIMAL_SPEED 70
 
 //Engine Navigation
-#define FWD 0
-#define REV 1
+#define FWD 0 //Vorwärts
+#define REV 1 //Rückwärts
 
 //Engine Connection and PWM
 #define PwmPinMotorA 3
@@ -29,12 +29,20 @@
 #define DirectionPinMotorB 13
 
 //IR Sensor
-#define NUM_SENSORS 5
-#define TIMEOUT 1000
+#define NUM_SENSORS 4 // Anpassen !! Anzahl an verwendeten Sensoren
+#define TIMEOUT 1500
 #define EMITTER_PIN 2
 
+//PID System
+#define SETPOINT 1500 // Anpassen !!  = MAXIMUM_POINT / 2
+#define MINIMUM_POINT 0
+#define MAXIMUM_POINT 3000 // Anpassen !! = (Anzahl Sensoren -1) * 1000
+
 //Debug Mode
-#define DEBUG 1
-#define DEBUG_OUPUT_SPEED 500
+#define DEBUG 0 //  Debug Modus 0 = Aus, 1 = Ein
+#define DEBUG_OUPUT_SPEED 700 // Debug Ausgabe Geschwindigkeit
+#define PROGRAMCABLE 4
+#define STATUS_LED 2
+
 #endif
 
