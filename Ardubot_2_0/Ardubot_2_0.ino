@@ -27,17 +27,9 @@ unsigned char SensorArray[NUM_SENSORS];
 void setup()
 {
   
-switch  (NUM_SENSORS) {
-  case 2:
-   SensorArray[0] = 7;SensorArray[1] = 8;
-   break;
-  case 4:
-   SensorArray[0] = 6;SensorArray[1] = 7;SensorArray[2] = 8;SensorArray[3] = 9;
-   break;
-  case 6:
-   SensorArray[0] = 5;SensorArray[1] = 6;SensorArray[2] = 7;SensorArray[3] = 8;SensorArray[4] = 9;SensorArray[5] = 10;
-   break;
-}
+  for(int i; i < NUM_SENSORS; i++){
+     SensorArray[i] = i + 5;
+  }
   
   Serial.begin(9600); // Serial init
   
