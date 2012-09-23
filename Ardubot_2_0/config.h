@@ -33,16 +33,11 @@
 #define TIMEOUT 1500
 #define EMITTER_PIN 2
 
-//PID System
-#define SETPOINT 1500 // Anpassen !!  = MAXIMUM_POINT / 2
-#define MINIMUM_POINT 0
-#define MAXIMUM_POINT 3000 // Anpassen !! = (Anzahl Sensoren -1) * 1000
-
 //Debug Mode
 #define DEBUG 0 //  Debug Modus 0 = Aus, 1 = Ein
 #define DEBUG_OUPUT_SPEED 700 // Debug Ausgabe Geschwindigkeit
 #define PROGRAMCABLE 4
-#define STATUS_LED 2
+#define STATUS_LED A0
 
 #endif
 

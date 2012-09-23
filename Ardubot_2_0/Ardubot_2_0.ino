@@ -12,18 +12,25 @@
 int Error = 0;
 int LastError = 0;
 int MotorSpeed = 0;
+int MaximumPoint = (NUM_SENSORS - 1) * 1000;
+int SetPoint = MaximumPoint / 2;
 int Output;
 int Position;
+//--------------------------------------------------------------------------------------------
+//  Sensors [i]  |  0  |  1  |  2  |  3  |  4  | 5  |
+//  Pins [i+5]   |  5  |  6  |  7  |  8  |  9  | 10 |
+//--------------------------------------------------------------------------------------------
+unsigned char SensorArray[NUM_SENSORS];
 
-//--------------------------------------------------------------------------------------------
-//  Sensors   |  0  |  1  |  2  |  3  |  4  | 5  |
-//  Pins      |  5  |  6  |  7  |  8  |  9  | 10 |
-//--------------------------------------------------------------------------------------------
-QTRSensorsRC qtrrc((unsigned char[]) {6,7,8,9} ,NUM_SENSORS, TIMEOUT, EMITTER_PIN);
 
 //Initiation
 void setup()
 {
+  
+  for(int i; i < NUM_SENSORS; i++){
+     SensorArray[i] = i + 5;
+  }
+  
   Serial.begin(9600); // Serial init
   
   pinMode(PROGRAMCABLE, INPUT);  //Programmer Cable Pin
@@ -43,35 +50,38 @@ void setup()
   pinMode(9, INPUT);
   pinMode(10, INPUT);
   
-  delay(500);
+  digitalWrite(1, HIGH);
+  
+  delay(300);
   manual_calibration(); //Sensor calibration
+  delay(500);
   
   set_motors(0,0, FWD);
 }
 
-
+QTRSensorsRC qtrrc(SensorArray, NUM_SENSORS, TIMEOUT, EMITTER_PIN);
 //Mainframe
 void loop()
 {
   unsigned int Sensors[NUM_SENSORS];
   Position = qtrrc.readLine(Sensors);
-  Error = Position - SETPOINT;
+  Error = Position - SetPoint;
 
   Output = KP * Error + KD * (Error - LastError);
   LastError = Error;
   
   if(digitalRead(PROGRAMCABLE) == HIGH){
-    int value = HIGH;
+    set_motors(0,0, FWD);
     delay(200);
-    digitalWrite(STATUS_LED, value);
+    digitalWrite(STATUS_LED, HIGH);
     delay(200);
-    value = LOW;
+    digitalWrite(STATUS_LED, LOW);
   } 
   
   if(DEBUG == 1){
     debug_mode();
   }else{
-    if(Position == MINIMUM_POINT || Position == MAXIMUM_POINT){
+    if(Position == 0 || Position == MaximumPoint){
     set_motors(0, 0, FWD);
     }else{
     int Motor1NewSpeed = MOTOR1_NORMAL_SPEED + Output;
@@ -101,11 +111,13 @@ void set_motors(int Motor1Speed, int Motor2Speed, int MotorDirection)
 }
 
 void manual_calibration() {
+  digitalWrite(STATUS_LED, HIGH);
   for (int i = 0; i < 250; i++)
   {
     qtrrc.calibrate(QTR_EMITTERS_ON);
     delay(10);
   }
+  digitalWrite(STATUS_LED, LOW);
 }
 
 void debug_mode(){
