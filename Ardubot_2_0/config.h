@@ -9,14 +9,14 @@
 #define config_h
 
 //PID Control
-#define KP .18
-#define KD 5
+#define KP .19
+#define KD 6
 
 //Engine System
-#define MOTOR1_NORMAL_SPEED 50
-#define MOTOR2_NORMAL_SPEED 50
-#define MOTOR1_MAXIMAL_SPEED 70
-#define MOTOR2_MAXIMAL_SPEED 70
+#define MOTOR1_NORMAL_SPEED 60
+#define MOTOR2_NORMAL_SPEED 60
+#define MOTOR1_MAXIMAL_SPEED 65
+#define MOTOR2_MAXIMAL_SPEED 65
 
 //Engine Navigation
 #define FWD 0 //Vorwärts
@@ -34,8 +34,7 @@
 #define EMITTER_PIN 2
 
 //Debug Mode
-#define DEBUG 0 //  Debug Modus 0 = Aus, 1 = Ein
-#define DEBUG_OUPUT_SPEED 700 // Debug Ausgabe Geschwindigkeit
+#define DEBUG_OUPUT_SPEED 500 // Debug Ausgabe Geschwindigkeit
 #define PROGRAMCABLE 4
 #define STATUS_LED A0
 
