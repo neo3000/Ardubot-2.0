@@ -17,9 +17,10 @@ int SetPoint = MaximumPoint / 2;
 int Output;
 int Position;
 //--------------------------------------------------------------------------------------------
-//  Sensors [i]  |  0  |  1  |  2  |  3  |  4  | 5  |
-//  Pins [i+5]   |  5  |  6  |  7  |  8  |  9  | 10 |
+//  Sensors      |  0  |  1  |  2  |  3  |  4  | 5  |
+//  Pins         |  5  |  6  |  7  |  8  |  9  | 10 |
 //--------------------------------------------------------------------------------------------
+//unsigned char SensorArray[NUM_SENSORS];
 QTRSensorsRC qtrrc((unsigned char[]) {6,7,8,9}, NUM_SENSORS, TIMEOUT, EMITTER_PIN);
 
 //Initiation
@@ -46,14 +47,15 @@ void setup(){
   
   digitalWrite(1, HIGH);
   
-    while(digitalRead(PROGRAMCABLE) == HIGH){
+  while(digitalRead(PROGRAMCABLE) == HIGH){
     set_motors(0,0, FWD);
     analogWrite(STATUS_LED, 1023);
     delay(200);
     analogWrite(STATUS_LED, 0);
     delay(200);
     debug_mode();
-    }
+  }
+    
   analogWrite(STATUS_LED, 1023);
   delay(300);
   manual_calibration(); //Sensor calibration
